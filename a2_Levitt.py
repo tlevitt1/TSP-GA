@@ -110,12 +110,106 @@ def calculate_fitness(population):
     print(routeLengths)
     print('\n')
 
-    raw = routeLengths
-    print(raw)
+    # raw = routeLengths
+    # print(raw)
 
-    normRouteLengths = [float(i)/sum(raw) for i in raw]
+    # normRouteLengths = [float(i)/sum(raw) for i in raw]
     print('\n')
-    print(normRouteLengths)
+    # print(normRouteLengths)
+
+    probability = []
+
+    for route in routeLengths:
+        probability.append(1 / route)
+
+    print(probability)
+    print('\n')
+
+
+
+    raw = probability
+
+    normProbabilities = [float(i)/sum(raw) for i in raw]
+    print('\n')
+    print(normProbabilities)
+    print('\n')
+
+    parents = []
+    slices = []
+    total = 0
+    number_of_selections = 2
+
+
+    # for i in range(0, number_of_selections):
+    #     slices.append([i, total, total + normProbabilities[i]])
+    #     total += normProbabilities[i]
+    # spin = random.uniform(0,1)
+    # result = [slice for slice in slices if slice[1] < spin <= slice[2]]
+    # print('\n')
+    # print(result)
+    # print('\n')
+
+
+    print('\n')
+    randomNumber = random.uniform(0,1)
+    print(randomNumber)
+    print('\n')
+
+    slice1 = normProbabilities[0]
+    slice2 = slice1 + normProbabilities[1]
+    slice3 = slice2 + normProbabilities[2]
+    slice4 = slice3 + normProbabilities[3]
+    slice5 = slice4 + normProbabilities[4]
+    slice6 = slice5 + normProbabilities[5]
+    slice7 = slice6 + normProbabilities[6]
+    slice8 = slice7 + normProbabilities[7]
+    slice9 = slice8 + normProbabilities[8]
+    # slice10 = slice9 + normProbabilities[9]
+
+
+
+
+    if randomNumber < slice1:
+        print('Route 1 has been chosen as a parent')
+        parents.append(normProbabilities[0])
+    elif randomNumber < slice2:
+        print('Route 2 has been chosen as a parent')
+        parents.append(normProbabilities[1])
+    elif randomNumber < slice3:
+        print('Route 3 has been chosen as a parent')
+        parents.append(normProbabilities[2])
+    elif randomNumber < slice4:
+        print('Route 4 has been chosen as a parent')
+        parents.append(normProbabilities[3])
+    elif randomNumber < slice5:
+        print('Route 5 has been chosen as a parent')
+        parents.append(normProbabilities[4])
+    elif randomNumber < slice6:
+        print('Route 6 has been chosen as a parent')
+        parents.append(normProbabilities[5])
+    elif randomNumber < slice7:
+        print('Route 7 has been chosen as a parent')
+        parents.append(normProbabilities[6])
+    elif randomNumber < slice8:
+        print('Route 8 has been chosen as a parent')
+        parents.append(normProbabilities[7])
+    elif randomNumber < slice9:
+        print('Route 9 has been chosen as a parent')
+        parents.append(normProbabilities[8])
+    else:
+        print('Route 10 has been chosen as a parent')
+        parents.append(normProbabilities[9])
+
+    print('\n')
+    print(parents)
+
+
+
+    # for route in routeLengths:
+    #     probability.append(route / sum(routeLengths))
+
+    # print(probability)
+
 
     
 # def set_probabilities_of_population(population):
@@ -212,7 +306,7 @@ def create_population(N_SIZE, POP_SIZE):
 
 
     for chromosome in range(POP_SIZE):
-        random.seed(chromosome)
+        # random.seed(chromosome)
         random.shuffle(cityList)
         population.append(list(cityList))
 
@@ -261,15 +355,15 @@ if __name__ == '__main__':
 
 
 
-def run_ga():
-    best_global_fitness = 0
-    global_population = generate_initial_population(INITIAL_POPULATION_SIZE)
-    for generation in range(NUMBER_OF_GENERATIONS):
-        current_best_fitness = calculate_population_fitness(global_population, KNAPSACK_WEIGHT_CAPACITY)
-        if current_best_fitness > best_global_fitness:
-            best_global_fitness = current_best_fitness
-        the_chosen = roulette_wheel_selection(global_population, 100)
-        the_children = reproduce_children(the_chosen)
-        the_children = mutate_children(the_children, MUTATION_RATE)
-        global_population = merge_population_and_children(global_population, the_children)
-        # print(global_population)
+# def run_ga():
+#     best_global_fitness = 0
+#     global_population = generate_initial_population(INITIAL_POPULATION_SIZE)
+#     for generation in range(NUMBER_OF_GENERATIONS):
+#         current_best_fitness = calculate_population_fitness(global_population, KNAPSACK_WEIGHT_CAPACITY)
+#         if current_best_fitness > best_global_fitness:
+#             best_global_fitness = current_best_fitness
+#         the_chosen = roulette_wheel_selection(global_population, 100)
+#         the_children = reproduce_children(the_chosen)
+#         the_children = mutate_children(the_children, MUTATION_RATE)
+#         global_population = merge_population_and_children(global_population, the_children)
+#         # print(global_population)
