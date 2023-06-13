@@ -4,6 +4,22 @@
 # 6/11/2023
 
 
+# STEPS TO THE ALGORITHM
+
+
+# 1. Encode the Solution Space
+# 2. Set Algorithm Parameters
+# 3. Create Initial Population
+# 4. Measure Fitness of Individuals
+# 5. Select Parents
+# 6. Reproduce Offspring
+# 7. Populate Next Generation
+# 8. Measure Fitness of Individuals 
+# 9. Repeat 5-9 Until Desired Fitness or Interations is Reached
+
+
+
+
 import random
 import numpy as np
 
@@ -67,12 +83,13 @@ class Fitness():
 def main():
     '''main function'''
 
-    random.seed(2)
+    # random.seed(2)
 
 
     N_SIZE = 25
 
     population = []
+    popSize = 10
 
     
     cityName = ['Boca Raton', 'Bradenton', 'Clearwater', 'Cocoa Beach', 
@@ -83,21 +100,43 @@ def main():
                 'Pompano Beach', 'Sarasota', 'Tallahassee', 'Tampa', 
                 'West Palm Beach']
     
-    for chromo in range(0, 10):
-        cityList = []
+    # for chromo in range(0, 10):
+    #     cityList = []
 
-        for city in range(0, N_SIZE):
-            cityList.append(City(name=cityName[city], 
-                                x=int(random.random() * 200), 
-                                y=int(random.random() * 200)))
+    #     for city in range(0, N_SIZE):
+    #         cityList.append(City(name=cityName[city], 
+    #                             x=int(random.random() * 200), 
+    #                             y=int(random.random() * 200)))
             
+    #     random.shuffle(cityList)
+    #     population.append(cityList)
+
+
+    cityList = []
+
+    for city in range(0, N_SIZE):
+        cityList.append(City(name=cityName[city], 
+                            x=int(random.random() * 200), 
+                             y=int(random.random() * 200)))
+        
+
+    for x in range(popSize):
+        # random.seed(x)
         random.shuffle(cityList)
-        population.append(cityList)
+        population.append(list(cityList))
+
+
 
     print('\n\n')
 
     print(population[0])
+    print('\n')
     print(population[1])
+    print('\n')
+    print(population[2])
+    print('\n')
+    print(len(population))
+    print('\n')
 
     
 if __name__ == '__main__':
