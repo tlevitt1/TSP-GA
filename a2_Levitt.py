@@ -23,6 +23,7 @@
 import random
 import numpy as np
 
+
 class City():
     '''city class'''
 
@@ -53,13 +54,14 @@ class City():
 
 class Fitness():
     '''fitness class'''
-    def __init__(self, route):
+
+    def __init__(self, route):    
         self.route = route
         self.distance = 0
         self.fitness= 0.0
     
     def routeDistance(self):
-        if self.distance ==0:
+        if self.distance == 0:
             pathDistance = 0
             for i in range(0, len(self.route)):
                 fromCity = self.route[i]
@@ -77,21 +79,120 @@ class Fitness():
             self.fitness = 1 / float(self.routeDistance())
         return self.fitness
     
+
+def calculate_fitness(population):
+    '''Calculates fitness for each route in population'''
     
+    bestFitness = 0
+    routeLengths = []
+
+    for route in population:
+        
+        totalRouteLength = 0
+        nextCityIndex = 1
+        for city in route:
+
+            if nextCityIndex == len(route):
+                distBetweenCities = route[0].get_distance(route[nextCityIndex-1])
+                totalRouteLength = totalRouteLength + distBetweenCities
+                break
+
+            distBetweenCities = city.get_distance(route[nextCityIndex])
+            totalRouteLength = totalRouteLength + distBetweenCities
+            nextCityIndex += 1
+
+        
+        routeLengths.append(totalRouteLength)
+        
+
+    print('\n')
+    print('THESE ARE THE ROUTE LENGTHS')
+    print(routeLengths)
+    print('\n')
+
+    raw = routeLengths
+    print(raw)
+
+    normRouteLengths = [float(i)/sum(raw) for i in raw]
+    print('\n')
+    print(normRouteLengths)
+
+    
+# def set_probabilities_of_population(population):
+#     total_fitness = sum of fitness 
+#     for individual in population:
+#         probability_of_selection of individual = fitness / total_fitness
 
 
-def main():
-    '''main function'''
+# def roulette_wheel_selection(population, normRouteLengths):
+#     possibleProbabilities = set_probabilities_of_population(population)
+#     slices = []
+#     total = 0
+#     for i in range(0, len(normRouteLengths)):
+#         slices.append(i, total, total + possible_probabilities[i])
+#         total += possibleProbabilities[i]
+#     spin = random.random(0, 1)
+#     result = [slice for slice in slices if slice[1] < spin <= slice[2]]
+#     return result
 
-    # random.seed(2)
 
 
-    N_SIZE = 25
+    # ###############################################
+    # import numpy.random as npr
+    # def selectOne(self, population):
+    # max = sum([c.fitness for c in population])
+    # selection_probs = [c.fitness/max for c in population]
+    # return population[npr.choice(len(population), p=selection_probs)]
+    # ################################################
+    # def selectOne(self, population):
+    # max = sum([c.fitness for c in population])
+    # pick = random.uniform(0, max)
+    # current = 0
+    # for chromosome in population:
+    #     current += chromosome.fitness
+    #     if current > pick:
+    #         return chromosome
+
+
+
+
+
+
+
+# def calculate_population_fitness(population, maximum_weight):
+#     best_fitness = 0
+#     for individual in population:
+#         individual_fitness = calculate_individual_fitness(individual[INDIVIDUAL_CHROMOSOME_INDEX], maximum_weight)
+#         individual[INDIVIDUAL_FITNESS_INDEX] = individual_fitness
+#         if individual_fitness > best_fitness:
+#             best_fitness = individual_fitness
+#         # if individual_fitness == -1:
+#         #     population.remove(individual)
+#     return best_fitness
+
+
+# def calculate_individual_fitness(individual, maximum_weight):
+#     total_individual_weight = 0
+#     total_individual_value = 0
+#     for gene_index in range(len(individual)):
+#         gene_switch = individual[gene_index]
+#         if gene_switch == '1':
+#             total_individual_weight += knapsack_items[gene_index][KNAPSACK_ITEM_WEIGHT_INDEX]
+#             total_individual_value += knapsack_items[gene_index][KNAPSACK_ITEM_VALUE_INDEX]
+#     if total_individual_weight > maximum_weight:
+#         return -1
+#     return total_individual_value
+
+
+
+
+def create_population(N_SIZE, POP_SIZE):
+    '''creates the cities and population'''
 
     population = []
-    popSize = 10
+    cityList = []
 
-    
+    #25 cities
     cityName = ['Boca Raton', 'Bradenton', 'Clearwater', 'Cocoa Beach', 
                 'Coral Gables', 'Daytona Beach', 'Deerfield Beach', 
                 'Delray Beach', 'Fort Lauderdale', 'Fort Myers', 'Gainesville', 
@@ -100,44 +201,75 @@ def main():
                 'Pompano Beach', 'Sarasota', 'Tallahassee', 'Tampa', 
                 'West Palm Beach']
     
-    # for chromo in range(0, 10):
-    #     cityList = []
-
-    #     for city in range(0, N_SIZE):
-    #         cityList.append(City(name=cityName[city], 
-    #                             x=int(random.random() * 200), 
-    #                             y=int(random.random() * 200)))
-            
-    #     random.shuffle(cityList)
-    #     population.append(cityList)
-
-
-    cityList = []
-
     for city in range(0, N_SIZE):
         cityList.append(City(name=cityName[city], 
                             x=int(random.random() * 200), 
                              y=int(random.random() * 200)))
         
+    
+    # COULD HAVE INITIAL DISTANCE USING THE ALPHABETICAL CITY LIST 
+    # TO SEE IF GA IS WORKING
 
-    for x in range(popSize):
-        # random.seed(x)
+
+    for chromosome in range(POP_SIZE):
+        random.seed(chromosome)
         random.shuffle(cityList)
         population.append(list(cityList))
 
-
-
+    # Debugging
     print('\n\n')
-
     print(population[0])
     print('\n')
-    print(population[1])
-    print('\n')
-    print(population[2])
-    print('\n')
-    print(len(population))
-    print('\n')
+    # print(population[1])
+    # print('\n')
+    # print(population[2])
+    # print('\n')
+    # print(len(population))
+    # print('\n')
 
+    return population
+
+
+
+
+def main():
+    '''main function'''
+
+    N_SIZE = 25
+    POP_SIZE = 10
+
+    population = create_population(N_SIZE, POP_SIZE)
     
+    calculate_fitness(population)
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == '__main__':
     main()
+
+
+
+
+
+
+
+def run_ga():
+    best_global_fitness = 0
+    global_population = generate_initial_population(INITIAL_POPULATION_SIZE)
+    for generation in range(NUMBER_OF_GENERATIONS):
+        current_best_fitness = calculate_population_fitness(global_population, KNAPSACK_WEIGHT_CAPACITY)
+        if current_best_fitness > best_global_fitness:
+            best_global_fitness = current_best_fitness
+        the_chosen = roulette_wheel_selection(global_population, 100)
+        the_children = reproduce_children(the_chosen)
+        the_children = mutate_children(the_children, MUTATION_RATE)
+        global_population = merge_population_and_children(global_population, the_children)
+        # print(global_population)
