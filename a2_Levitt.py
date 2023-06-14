@@ -51,7 +51,6 @@ class City():
                                          x = self.x, y = self.y)
     
 
-
 class Fitness():
     '''fitness class'''
 
