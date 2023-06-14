@@ -83,7 +83,6 @@ class Fitness():
 def calculate_fitness(population):
     '''Calculates fitness for each route in population'''
     
-    bestFitness = 0
     routeLengths = []
 
     for route in population:
@@ -101,183 +100,90 @@ def calculate_fitness(population):
             totalRouteLength = totalRouteLength + distBetweenCities
             nextCityIndex += 1
 
-        
         routeLengths.append(totalRouteLength)
-        
+    return routeLengths
 
-    print('\n')
-    print('THESE ARE THE ROUTE LENGTHS')
-    print(routeLengths)
-    print('\n')
 
-    # raw = routeLengths
-    # print(raw)
 
-    # normRouteLengths = [float(i)/sum(raw) for i in raw]
-    print('\n')
-    # print(normRouteLengths)
+def set_probability(routeLengths):
+    '''sets probability for the whole population'''
 
     probability = []
-
     for route in routeLengths:
         probability.append(1 / route)
-
-    print(probability)
-    print('\n')
-
-
-
-    raw = probability
-
-    normProbabilities = [float(i)/sum(raw) for i in raw]
-    print('\n')
-    print(normProbabilities)
-    print('\n')
-
-    parents = []
-    slices = []
-    total = 0
-    number_of_selections = 2
-
-
-    # for i in range(0, number_of_selections):
-    #     slices.append([i, total, total + normProbabilities[i]])
-    #     total += normProbabilities[i]
-    # spin = random.uniform(0,1)
-    # result = [slice for slice in slices if slice[1] < spin <= slice[2]]
-    # print('\n')
-    # print(result)
-    # print('\n')
-
-
-    print('\n')
-    randomNumber = random.uniform(0,1)
-    print(randomNumber)
-    print('\n')
-
-    slice1 = normProbabilities[0]
-    slice2 = slice1 + normProbabilities[1]
-    slice3 = slice2 + normProbabilities[2]
-    slice4 = slice3 + normProbabilities[3]
-    slice5 = slice4 + normProbabilities[4]
-    slice6 = slice5 + normProbabilities[5]
-    slice7 = slice6 + normProbabilities[6]
-    slice8 = slice7 + normProbabilities[7]
-    slice9 = slice8 + normProbabilities[8]
-    # slice10 = slice9 + normProbabilities[9]
-
-
-
-
-    if randomNumber < slice1:
-        print('Route 1 has been chosen as a parent')
-        parents.append(normProbabilities[0])
-    elif randomNumber < slice2:
-        print('Route 2 has been chosen as a parent')
-        parents.append(normProbabilities[1])
-    elif randomNumber < slice3:
-        print('Route 3 has been chosen as a parent')
-        parents.append(normProbabilities[2])
-    elif randomNumber < slice4:
-        print('Route 4 has been chosen as a parent')
-        parents.append(normProbabilities[3])
-    elif randomNumber < slice5:
-        print('Route 5 has been chosen as a parent')
-        parents.append(normProbabilities[4])
-    elif randomNumber < slice6:
-        print('Route 6 has been chosen as a parent')
-        parents.append(normProbabilities[5])
-    elif randomNumber < slice7:
-        print('Route 7 has been chosen as a parent')
-        parents.append(normProbabilities[6])
-    elif randomNumber < slice8:
-        print('Route 8 has been chosen as a parent')
-        parents.append(normProbabilities[7])
-    elif randomNumber < slice9:
-        print('Route 9 has been chosen as a parent')
-        parents.append(normProbabilities[8])
-    else:
-        print('Route 10 has been chosen as a parent')
-        parents.append(normProbabilities[9])
-
-    print('\n')
-    print(parents)
-
-
-
-    # for route in routeLengths:
-    #     probability.append(route / sum(routeLengths))
-
+        
     # print(probability)
 
+    normProbabilities = [float(i)/sum(probability) for i in probability]
+    # print(normProbabilities)
 
+    return normProbabilities
+
+
+def proportional_roulette_selection(NUM_PARENTS, routeLengths, population, 
+                                    normProbabilities):
+    '''Selecting parents using proportional roulette selection'''
     
-# def set_probabilities_of_population(population):
-#     total_fitness = sum of fitness 
-#     for individual in population:
-#         probability_of_selection of individual = fitness / total_fitness
+    normProbabilities = set_probability(routeLengths)
 
 
-# def roulette_wheel_selection(population, normRouteLengths):
-#     possibleProbabilities = set_probabilities_of_population(population)
-#     slices = []
-#     total = 0
-#     for i in range(0, len(normRouteLengths)):
-#         slices.append(i, total, total + possible_probabilities[i])
-#         total += possibleProbabilities[i]
-#     spin = random.random(0, 1)
-#     result = [slice for slice in slices if slice[1] < spin <= slice[2]]
-#     return result
+    slices = []
 
+    for slice in range(len(normProbabilities)):
+        sliceCounter = 0
+        if slice == 0:
+            slices.append(normProbabilities[0])
+        else:
 
+            slices.append(slices[sliceCounter-1] + normProbabilities[slice])
 
-    # ###############################################
-    # import numpy.random as npr
-    # def selectOne(self, population):
-    # max = sum([c.fitness for c in population])
-    # selection_probs = [c.fitness/max for c in population]
-    # return population[npr.choice(len(population), p=selection_probs)]
-    # ################################################
-    # def selectOne(self, population):
-    # max = sum([c.fitness for c in population])
-    # pick = random.uniform(0, max)
-    # current = 0
-    # for chromosome in population:
-    #     current += chromosome.fitness
-    #     if current > pick:
-    #         return chromosome
+    # print(slices)
 
+    parents = []
+    prevSlice = None
 
+    while len(parents) != NUM_PARENTS:
 
+        randomNumber = random.uniform(0,1)
+        #print('ran', randomNumber)
+        for index, slice in enumerate(slices):
 
+            if prevSlice == index:
+                continue
+            elif randomNumber < slice:
 
+                #print('sli', slice)
+                                #ROUTE 
+                parents.append(population[index])
+                print(parents)
+                prevSlice = index
+                break
+            else:
+                continue
 
+    return parents
 
-# def calculate_population_fitness(population, maximum_weight):
-#     best_fitness = 0
-#     for individual in population:
-#         individual_fitness = calculate_individual_fitness(individual[INDIVIDUAL_CHROMOSOME_INDEX], maximum_weight)
-#         individual[INDIVIDUAL_FITNESS_INDEX] = individual_fitness
-#         if individual_fitness > best_fitness:
-#             best_fitness = individual_fitness
-#         # if individual_fitness == -1:
-#         #     population.remove(individual)
-#     return best_fitness
+    # while len(parents) != NUM_PARENTS:
 
+    #     randomNumber = random.uniform(0,1)
+    #     #print('ran', randomNumber)
+    #     sliceCounter = 0
+    #     for slice in slices:
 
-# def calculate_individual_fitness(individual, maximum_weight):
-#     total_individual_weight = 0
-#     total_individual_value = 0
-#     for gene_index in range(len(individual)):
-#         gene_switch = individual[gene_index]
-#         if gene_switch == '1':
-#             total_individual_weight += knapsack_items[gene_index][KNAPSACK_ITEM_WEIGHT_INDEX]
-#             total_individual_value += knapsack_items[gene_index][KNAPSACK_ITEM_VALUE_INDEX]
-#     if total_individual_weight > maximum_weight:
-#         return -1
-#     return total_individual_value
+    #         if prevSlice == slice:
+    #             break
 
+    #         if randomNumber < slice:
+            
+    #             #print('sli', slice)
+    #                             #ROUTE 
+    #             parents.append(population[sliceCounter])
+    #             prevSlice = slice
+    #             break
+                        
+    #         sliceCounter += 1
 
+    # return parents
 
 
 def create_population(N_SIZE, POP_SIZE):
@@ -310,17 +216,7 @@ def create_population(N_SIZE, POP_SIZE):
         random.shuffle(cityList)
         population.append(list(cityList))
 
-    # Debugging
-    print('\n\n')
-    print(population[0])
-    print('\n')
-    # print(population[1])
-    # print('\n')
-    # print(population[2])
-    # print('\n')
-    # print(len(population))
-    # print('\n')
-
+    # print(population)
     return population
 
 
@@ -332,13 +228,25 @@ def main():
     N_SIZE = 25
     POP_SIZE = 10
 
+    # CHANG
+    NUM_PARENTS = 2
+
     population = create_population(N_SIZE, POP_SIZE)
     
-    calculate_fitness(population)
+    routeLengths = calculate_fitness(population)
 
+    normProbabilities = set_probability(routeLengths)
 
+    parents = proportional_roulette_selection(NUM_PARENTS, routeLengths, population, 
+                                    normProbabilities)
 
+    print('\n')
+    print(parents[0])
+    print('\n')
+    print(parents[1])
+    print('\n')
 
+    
 
 
 
