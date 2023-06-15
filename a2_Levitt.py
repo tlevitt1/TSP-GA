@@ -1,11 +1,10 @@
 # Authors: Thomas Levitt and Dawson Merkle
-# Project 2: Traveling Salseman Problem using Genetic Algorithm
+# Project 2: Traveling Salesman Problem using Genetic Algorithm
 # CAP4630
 # 6/11/2023
 
 
 # STEPS TO THE ALGORITHM
-
 
 # 1. Encode the Solution Space
 # 2. Set Algorithm Parameters
@@ -18,6 +17,21 @@
 # 9. Repeat 5-9 Until Desired Fitness or Interations is Reached
 
 
+# THINGS TO DO:
+
+# Make more children every generation
+# Determine if we want to kill off old population members
+#     IF KILL OFF
+#         Random homicide?
+#         Weakest link homicide?
+#     ELSE
+#         Keep adding children to population
+# Rewrite crossover function
+# Think and change mutate function
+# Plot routes (global/generational)
+# Implement long city list and randomize city selection
+# Write other selection algorithms
+# TEST!!!
 
 
 import random
@@ -331,8 +345,9 @@ def main():
     BEST_ROUTE_LENGTH = 0
     BEST_ROUTE_LIST = []
     MUTATION_RATE = 0.1
+    # probably use 0.01
     
-    NUM_GENERATIONS = 50
+    NUM_GENERATIONS = 250
     
 
     # CHANGE
