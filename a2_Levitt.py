@@ -79,7 +79,7 @@ class Fitness():
         return self.fitness
     
 
-def calculate_fitness(population):
+def calculate_fitness(population, BEST_ROUTE_LENGTH):
     '''Calculates fitness for each route in population'''
     
     routeLengths = []
@@ -99,8 +99,15 @@ def calculate_fitness(population):
             totalRouteLength = totalRouteLength + distBetweenCities
             nextCityIndex += 1
 
+        # Keeping track of the global best route
+        if BEST_ROUTE_LENGTH == 0:
+            BEST_ROUTE_LENGTH = totalRouteLength
+        elif totalRouteLength < BEST_ROUTE_LENGTH:
+            BEST_ROUTE_LENGTH = totalRouteLength
+
+
         routeLengths.append(totalRouteLength)
-    return routeLengths
+    return routeLengths, BEST_ROUTE_LENGTH
 
 
 
@@ -119,11 +126,11 @@ def set_probability(routeLengths):
     return normProbabilities
 
 
-def proportional_roulette_selection(NUM_PARENTS, routeLengths, population, 
-                                    normProbabilities):
+# GOT RID OF NUMBER OF PARENTS ARGUMENT AND ROUTELENGTHS
+def proportional_roulette_selection(population, normProbabilities):
     '''Selecting parents using proportional roulette selection'''
     
-    normProbabilities = set_probability(routeLengths)
+    # normProbabilities = set_probability(routeLengths)
 
 
     slices = []
@@ -141,26 +148,93 @@ def proportional_roulette_selection(NUM_PARENTS, routeLengths, population,
     parents = []
     prevSlice = None
 
-    while len(parents) != NUM_PARENTS:
 
-        randomNumber = random.uniform(0,1)
-        #print('ran', randomNumber)
-        for index, slice in enumerate(slices):
+    randomNumber = random.uniform(0,1)
+    # print('\n')
+    # print('RANDOM NUMBER: ')
+    # print(randomNumber)
+    # print('\n')
 
-            if prevSlice == index:
-                continue
-            elif randomNumber < slice:
+    index = 0
 
-                #print('sli', slice)
-                                #ROUTE 
-                parents.append(population[index])
-                print(parents)
-                prevSlice = index
-                break
-            else:
-                continue
+    for slice in slices:
+        if randomNumber < slice:
+            # print('This is the slice: ')
+            # print(slice)
+            # print('\n')
+            return population[index]
+        index = index + 1
 
-    return parents
+
+                        
+def crossover(parent1, parent2):
+    child = []
+    childP1 = []
+    childP2 = []
+    
+    geneA = int(random.random() * len(parent1))
+    geneB = int(random.random() * len(parent1))
+    
+    startGene = min(geneA, geneB)
+    endGene = max(geneA, geneB)
+
+    for i in range(startGene, endGene):
+        childP1.append(parent1[i])
+        
+    childP2 = [item for item in parent2 if item not in childP1]
+
+    child = childP1 + childP2
+    return child
+
+
+def mutate(MUTATION_RATE, N_SIZE, child):
+
+    randomNum = random.uniform(0, 1)
+
+    randomIndex1 = random.randint(0, N_SIZE - 1)
+    randomIndex2 = random.randint(0, N_SIZE - 1)
+
+
+    if randomNum < MUTATION_RATE:
+
+        # print('\n')
+        # print('Random Index 1: ')
+        # print(randomIndex1)
+        # print('\n')
+        # print('Random Index 2: ')
+        # print(randomIndex2)
+
+        child[randomIndex1], child[randomIndex2] = child[randomIndex2], child[randomIndex1]
+        # temp = child[randomIndex1]
+        # child[randomIndex1] = child[randomIndex2]
+        # child[randomIndex2] = temp
+    return child
+
+
+def mergepopulation(population, child):
+    population.append(child)
+    return population
+
+    # while len(parents) != NUM_PARENTS:
+
+    #     randomNumber = random.uniform(0,1)
+    #     #print('ran', randomNumber)
+    #     for index, slice in enumerate(slices):
+
+    #         if prevSlice == index:
+    #             continue
+    #         elif randomNumber < slice:
+
+    #             #print('sli', slice)
+    #                             #ROUTE 
+    #             parents.append(population[index])
+    #             print(parents)
+    #             prevSlice = index
+    #             break
+    #         else:
+    #             continue
+
+    # return parents
 
     # while len(parents) != NUM_PARENTS:
 
@@ -191,7 +265,7 @@ def create_population(N_SIZE, POP_SIZE):
     population = []
     cityList = []
 
-    #25 cities
+    # 25 cities
     cityName = ['Boca Raton', 'Bradenton', 'Clearwater', 'Cocoa Beach', 
                 'Coral Gables', 'Daytona Beach', 'Deerfield Beach', 
                 'Delray Beach', 'Fort Lauderdale', 'Fort Myers', 'Gainesville', 
@@ -200,11 +274,39 @@ def create_population(N_SIZE, POP_SIZE):
                 'Pompano Beach', 'Sarasota', 'Tallahassee', 'Tampa', 
                 'West Palm Beach']
     
+    # 58 cities
+    # cityName = ['Apalachicola', 'Bartow','Belle Glade', 'Boca Raton', 
+    #             'Bradenton', 'Cape Coral', 'Clearwater', 'Cocoa Beach', 
+    #             'Cocoa-Rockledge', 'Coral Gables', 'Daytona Beach', 'De Land',
+    #             'Deerfield Beach', 'Delray Beach', 'Fernandina Beach',
+    #             'Fort Lauderdale', 'Fort Myers', 'Fort Pierce', 
+    #             'Fort Walton Beach', 'Gainesville', 'Hallandale Beach', 
+    #             'Hialeah', 'Hollywood', 'Homestead', 'Jacksonville', 
+    #             'Key West', 'Lake City', 'Lake Wales', 'Lakeland', 'Largo', 
+    #             'Melbourne', 'Miami', 'Miami Beach', 'Naples', 
+    #             'New Smyrna Beach', 'Ocala', 'Orlando', 'Ormond Beach', 
+    #             'Palatka', 'Palm Bay', 'Palm Beach', 'Panama City', 
+    #             'Pensacola', 'Pompano Beach', 'Saint Augustine', 
+    #             'Saint Petersburg', 'Sanford', 'Sarasota', 'Sebring', 
+    #             'Tallahassee', 'Tampa', 'Tarpon Springs', 'Titusville', 
+    #             'Venice', 'West Palm Beach', 'White Springs', 'Winter Haven', 
+    #             'Winter Park']
+
+
+    
     for city in range(0, N_SIZE):
         cityList.append(City(name=cityName[city], 
                             x=int(random.random() * 200), 
                              y=int(random.random() * 200)))
         
+
+    # Outputting the starting distance with the alphabetical city list
+    # print('\n')
+    # print('This is the alphabetical route distance: ')
+    # alphRouteDist, BEST_ROUTE_LENGTH = calculate_fitness(list(cityList), 
+    #                                                     BEST_ROUTE_LENGTH)
+    # print(alphRouteDist)
+
     
     # COULD HAVE INITIAL DISTANCE USING THE ALPHABETICAL CITY LIST 
     # TO SEE IF GA IS WORKING
@@ -226,24 +328,90 @@ def main():
 
     N_SIZE = 25
     POP_SIZE = 10
+    BEST_ROUTE_LENGTH = 0
+    BEST_ROUTE_LIST = []
+    MUTATION_RATE = 0.1
+    
+    NUM_GENERATIONS = 50
+    
 
-    # CHANG
-    NUM_PARENTS = 2
+    # CHANGE
+    # NUM_PARENTS = 2
+
 
     population = create_population(N_SIZE, POP_SIZE)
+
+    for generations in range(NUM_GENERATIONS):
+
     
-    routeLengths = calculate_fitness(population)
+        routeLengths, BEST_ROUTE_LENGTH = calculate_fitness(population, 
+                                                        BEST_ROUTE_LENGTH)
 
-    normProbabilities = set_probability(routeLengths)
+        normProbabilities = set_probability(routeLengths)
 
-    parents = proportional_roulette_selection(NUM_PARENTS, routeLengths, population, 
-                                    normProbabilities)
+        # parents = proportional_roulette_selection(NUM_PARENTS, routeLengths, population, 
+        #                                 normProbabilities)
+
+
+        parent1 = []
+        parent2 = []
+
+        parent1 = proportional_roulette_selection(population, normProbabilities)
+        # print('This is parent 1: ')
+        # print(parent1)
+
+        parent2 = proportional_roulette_selection(population, normProbabilities)
+        # print('\n')
+        # print('This is parent 2: ')
+        # print(parent2)
+
+        child = crossover(parent1, parent2)
+        # print('\n')
+        # print('This is the child:')
+        # print(child)
+
+
+        child = mutate(MUTATION_RATE, N_SIZE, child)
+        # print('\n')
+        # print('This is the child after mutation: ')
+        # print(child)
+
+
+        population = mergepopulation(population, child)
+        # print('\n')
+        # print('This is the length of the new population: ')
+        # print(len(population))
+
+
+        # print('\n')
+        # print('These are the route lengths: ')
+        # print(routeLengths)
+        # print('\n')
+        # print('This is the best route: ')
+        # print(BEST_ROUTE_LENGTH)
+
+        BEST_ROUTE_LIST.append(BEST_ROUTE_LENGTH)
+    
 
     print('\n')
-    print(parents[0])
+    print('Best route length found within the generations: ')
+    print(BEST_ROUTE_LENGTH)
+
     print('\n')
-    print(parents[1])
+    print('Best route list: ')
+    print(BEST_ROUTE_LIST)
+
     print('\n')
+    print('This is the final length of the population: ')
+    print(len(population))
+    print('\n')
+
+
+    # print('\n')
+    # print(parents[0])
+    # print('\n')
+    # print(parents[1])
+    # print('\n')
 
     
 
