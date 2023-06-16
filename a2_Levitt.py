@@ -17,7 +17,18 @@
 # 9. Repeat 5-9 Until Desired Fitness or Interations is Reached
 
 
+
+
 # THINGS TO DO:
+
+# Rewrite crossover function
+# Plot routes (global/generational)
+# Implement long city list and randomize city selection
+# Write other selection algorithms
+# TEST!!!
+
+
+# DONE:
 
 # Make more children every generation
 # Determine if we want to kill off old population members
@@ -26,16 +37,12 @@
 #         Weakest link homicide?
 #     ELSE
 #         Keep adding children to population
-# Rewrite crossover function
 # Think and change mutate function
-# Plot routes (global/generational)
-# Implement long city list and randomize city selection
-# Write other selection algorithms
-# TEST!!!
 
 
 import random
 import numpy as np
+import matplotlib.pyplot as plt
 
 
 class City():
@@ -131,11 +138,8 @@ def set_probability(routeLengths):
     probability = []
     for route in routeLengths:
         probability.append(1 / route)
-        
-    # print(probability)
 
     normProbabilities = [float(i)/sum(probability) for i in probability]
-    # print(normProbabilities)
 
     return normProbabilities
 
@@ -143,9 +147,6 @@ def set_probability(routeLengths):
 # GOT RID OF NUMBER OF PARENTS ARGUMENT AND ROUTELENGTHS
 def proportional_roulette_selection(population, normProbabilities):
     '''Selecting parents using proportional roulette selection'''
-    
-    # normProbabilities = set_probability(routeLengths)
-
 
     slices = []
 
@@ -157,48 +158,56 @@ def proportional_roulette_selection(population, normProbabilities):
 
             slices.append(slices[sliceCounter-1] + normProbabilities[slice])
 
-    # print(slices)
-
-    parents = []
-    prevSlice = None
-
-
     randomNumber = random.uniform(0,1)
-    # print('\n')
-    # print('RANDOM NUMBER: ')
-    # print(randomNumber)
-    # print('\n')
 
     index = 0
 
     for slice in slices:
         if randomNumber < slice:
-            # print('This is the slice: ')
-            # print(slice)
-            # print('\n')
             return population[index]
         index = index + 1
 
 
                         
 def crossover(parent1, parent2):
-    child = []
-    childP1 = []
-    childP2 = []
-    
-    geneA = int(random.random() * len(parent1))
-    geneB = int(random.random() * len(parent1))
-    
-    startGene = min(geneA, geneB)
-    endGene = max(geneA, geneB)
+    '''Splices parent1 at random int and appends from parent2'''
 
-    for i in range(startGene, endGene):
-        childP1.append(parent1[i])
-        
-    childP2 = [item for item in parent2 if item not in childP1]
+    splice1 = random.randrange(len(parent1))
+    splice2 = random.randrange(len(parent1))
 
-    child = childP1 + childP2
+    startIND = min(splice1, splice2)
+    endIND = max(splice1, splice2)
+
+
+    child = parent1[startIND:endIND]
+
+    for x in parent2:
+        if x not in child:
+            child.append(x)
+
     return child
+
+
+
+    
+
+# def crossover(parent1, parent2):
+    
+#     childP1 = []
+    
+#     geneA = int(random.random() * len(parent1))
+#     geneB = int(random.random() * len(parent1))
+    
+#     startGene = min(geneA, geneB)
+#     endGene = max(geneA, geneB)
+
+#     for i in range(startGene, endGene):
+#         childP1.append(parent1[i])
+        
+#     childP2 = [item for item in parent2 if item not in childP1]
+
+#     child = childP1 + childP2
+#     return child
 
 
 def mutate(MUTATION_RATE, N_SIZE, child):
@@ -208,69 +217,32 @@ def mutate(MUTATION_RATE, N_SIZE, child):
     randomIndex1 = random.randint(0, N_SIZE - 1)
     randomIndex2 = random.randint(0, N_SIZE - 1)
 
-
     if randomNum < MUTATION_RATE:
 
-        # print('\n')
-        # print('Random Index 1: ')
-        # print(randomIndex1)
-        # print('\n')
-        # print('Random Index 2: ')
-        # print(randomIndex2)
-
         child[randomIndex1], child[randomIndex2] = child[randomIndex2], child[randomIndex1]
-        # temp = child[randomIndex1]
-        # child[randomIndex1] = child[randomIndex2]
-        # child[randomIndex2] = temp
+
     return child
 
 
-def mergepopulation(population, child):
-    population.append(child)
+def mergepopulation(population, children, routeLengths, KILL_RATE):
+    '''removes members of the population then merges with the children'''
+
+    for death in range(int(KILL_RATE * len(population))):
+        worstRoute = 0
+        for route in range(len(routeLengths)):
+            if routeLengths[route] > worstRoute:
+                worstRoute = routeLengths[route]
+                worstIndex = route
+            else:
+                continue
+        del population[worstIndex]
+        del routeLengths[worstIndex]
+
+        
+    for child in children:
+        population.append(child)
+
     return population
-
-    # while len(parents) != NUM_PARENTS:
-
-    #     randomNumber = random.uniform(0,1)
-    #     #print('ran', randomNumber)
-    #     for index, slice in enumerate(slices):
-
-    #         if prevSlice == index:
-    #             continue
-    #         elif randomNumber < slice:
-
-    #             #print('sli', slice)
-    #                             #ROUTE 
-    #             parents.append(population[index])
-    #             print(parents)
-    #             prevSlice = index
-    #             break
-    #         else:
-    #             continue
-
-    # return parents
-
-    # while len(parents) != NUM_PARENTS:
-
-    #     randomNumber = random.uniform(0,1)
-    #     #print('ran', randomNumber)
-    #     sliceCounter = 0
-    #     for slice in slices:
-
-    #         if prevSlice == slice:
-    #             break
-
-    #         if randomNumber < slice:
-            
-    #             #print('sli', slice)
-    #                             #ROUTE 
-    #             parents.append(population[sliceCounter])
-    #             prevSlice = slice
-    #             break
-                        
-    #         sliceCounter += 1
-
-    # return parents
 
 
 def create_population(N_SIZE, POP_SIZE):
@@ -320,7 +292,6 @@ def create_population(N_SIZE, POP_SIZE):
     # alphRouteDist, BEST_ROUTE_LENGTH = calculate_fitness(list(cityList), 
     #                                                     BEST_ROUTE_LENGTH)
     # print(alphRouteDist)
-
     
     # COULD HAVE INITIAL DISTANCE USING THE ALPHABETICAL CITY LIST 
     # TO SEE IF GA IS WORKING
@@ -337,24 +308,59 @@ def create_population(N_SIZE, POP_SIZE):
 
 
 
+
+# Y AXIS = DISTANCE IN UNITS
+# X AXIS = GENERATIONS
+# PLOT POINTS = BEST_ROUTE_LIST (its a list btw)
+
+# def plot_distances()
+
+
+
+
+
+# def geneticAlgorithmPlot(population, popSize, eliteSize, mutationRate, generations):
+#     pop = initialPopulation(popSize, population)
+#     progress = []
+#     progress.append(1 / rankRoutes(pop)[0][1])
+
+#     for i in range(0, generations):
+#         pop = nextGeneration(pop, eliteSize, mutationRate)
+#         progress.append(1 / rankRoutes(pop)[0][1])
+
+#     plt.plot(progress)
+#     plt.ylabel('Distance')
+#     plt.xlabel('Generation')
+#     plt.show()
+
+
+
+# geneticAlgorithmPlot(population=cityList, popSize=100, eliteSize=20, mutationRate=0.01, generations=500)
+
+
+
 def main():
     '''main function'''
 
+
     N_SIZE = 25
-    POP_SIZE = 10
+    POP_SIZE = 100
     BEST_ROUTE_LENGTH = 0
     BEST_ROUTE_LIST = []
     MUTATION_RATE = 0.1
-    # probably use 0.01
+    KILL_RATE = 0.2
+    NUM_CHILDREN = 20
     
-    NUM_GENERATIONS = 250
     
-
-    # CHANGE
-    # NUM_PARENTS = 2
-
+    NUM_GENERATIONS = 500
+    
+    # random.seed(1)
 
     population = create_population(N_SIZE, POP_SIZE)
+
+
+    # random.seed()
+
 
     for generations in range(NUM_GENERATIONS):
 
@@ -364,57 +370,37 @@ def main():
 
         normProbabilities = set_probability(routeLengths)
 
-        # parents = proportional_roulette_selection(NUM_PARENTS, routeLengths, population, 
-        #                                 normProbabilities)
-
-
-        parent1 = []
-        parent2 = []
 
         parent1 = proportional_roulette_selection(population, normProbabilities)
-        # print('This is parent 1: ')
-        # print(parent1)
-
         parent2 = proportional_roulette_selection(population, normProbabilities)
-        # print('\n')
-        # print('This is parent 2: ')
-        # print(parent2)
-
-        child = crossover(parent1, parent2)
-        # print('\n')
-        # print('This is the child:')
-        # print(child)
 
 
-        child = mutate(MUTATION_RATE, N_SIZE, child)
-        # print('\n')
-        # print('This is the child after mutation: ')
-        # print(child)
+        children = []
 
+        for x in range(NUM_CHILDREN):
+            child = crossover(parent1, parent2)
+            child = mutate(MUTATION_RATE, N_SIZE, child)
+            children.append(child)
 
-        population = mergepopulation(population, child)
-        # print('\n')
-        # print('This is the length of the new population: ')
-        # print(len(population))
-
-
-        # print('\n')
-        # print('These are the route lengths: ')
-        # print(routeLengths)
-        # print('\n')
-        # print('This is the best route: ')
-        # print(BEST_ROUTE_LENGTH)
-
+        population = mergepopulation(population, children, routeLengths, 
+                                    KILL_RATE)
+            
         BEST_ROUTE_LIST.append(BEST_ROUTE_LENGTH)
     
 
     print('\n')
-    print('Best route length found within the generations: ')
-    print(BEST_ROUTE_LENGTH)
+    print('Best route starting point: ')
+    print(BEST_ROUTE_LIST[0])
 
     print('\n')
-    print('Best route list: ')
-    print(BEST_ROUTE_LIST)
+    print('Best route length found within the generations: ')
+    print(BEST_ROUTE_LENGTH)
+    print('\n')
+
+    # print('\n')
+    # print('Best route list: ')
+    # print(BEST_ROUTE_LIST)
+
 
     print('\n')
     print('This is the final length of the population: ')
@@ -422,24 +408,9 @@ def main():
     print('\n')
 
 
-    # print('\n')
-    # print(parents[0])
-    # print('\n')
-    # print(parents[1])
-    # print('\n')
-
-    
-
-
-
-
-
-
 
 if __name__ == '__main__':
     main()
-
-
 
 
 
