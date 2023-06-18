@@ -22,8 +22,6 @@
 # THINGS TO DO:
 
 # Rewrite crossover function
-# Plot routes (global/generational)
-# Implement long city list and randomize city selection
 # Write other selection algorithms
 # TEST!!!
 
@@ -38,6 +36,8 @@
 #     ELSE
 #         Keep adding children to population
 # Think and change mutate function
+# Plot routes (global/generational)
+# Implement long city list and randomize city selection
 
 
 import random
@@ -63,7 +63,7 @@ class City():
     
     def get_coords(self):
         '''returns tuple of x and y'''
-        return (self.x, self.y)
+        return self.x, self.y
     
     def __repr__(self):
         '''returns string representation of city'''
@@ -72,35 +72,7 @@ class City():
                                          x = self.x, y = self.y)
     
 
-class Fitness():
-    '''fitness class'''
-
-    def __init__(self, route):    
-        self.route = route
-        self.distance = 0
-        self.fitness= 0.0
-    
-    def routeDistance(self):
-        if self.distance == 0:
-            pathDistance = 0
-            for i in range(0, len(self.route)):
-                fromCity = self.route[i]
-                toCity = None
-                if i + 1 < len(self.route):
-                    toCity = self.route[i + 1]
-                else:
-                    toCity = self.route[0]
-                pathDistance += fromCity.distance(toCity)
-            self.distance = pathDistance
-        return self.distance
-    
-    def routeFitness(self):
-        if self.fitness == 0:
-            self.fitness = 1 / float(self.routeDistance())
-        return self.fitness
-    
-
-def calculate_fitness(population, BEST_ROUTE_LENGTH):
+def calculate_fitness(population, BEST_ROUTE_LENGTH, BEST_ROUTE):
     '''Calculates fitness for each route in population'''
     
     routeLengths = []
@@ -123,13 +95,15 @@ def calculate_fitness(population, BEST_ROUTE_LENGTH):
         # Keeping track of the global best route
         if BEST_ROUTE_LENGTH == 0:
             BEST_ROUTE_LENGTH = totalRouteLength
+            BEST_ROUTE = route
         elif totalRouteLength < BEST_ROUTE_LENGTH:
             BEST_ROUTE_LENGTH = totalRouteLength
+            BEST_ROUTE = route
 
 
         routeLengths.append(totalRouteLength)
-    return routeLengths, BEST_ROUTE_LENGTH
 
+    return routeLengths, BEST_ROUTE_LENGTH, BEST_ROUTE
 
 
 def set_probability(routeLengths):
@@ -144,7 +118,6 @@ def set_probability(routeLengths):
     return normProbabilities
 
 
-# GOT RID OF NUMBER OF PARENTS ARGUMENT AND ROUTELENGTHS
 def proportional_roulette_selection(population, normProbabilities):
     '''Selecting parents using proportional roulette selection'''
 
@@ -167,8 +140,7 @@ def proportional_roulette_selection(population, normProbabilities):
             return population[index]
         index = index + 1
 
-
-                        
+              
 def crossover(parent1, parent2):
     '''Splices parent1 at random int and appends from parent2'''
 
@@ -178,7 +150,6 @@ def crossover(parent1, parent2):
     startIND = min(splice1, splice2)
     endIND = max(splice1, splice2)
 
-
     child = parent1[startIND:endIND]
 
     for x in parent2:
@@ -186,28 +157,6 @@ def crossover(parent1, parent2):
             child.append(x)
 
     return child
-
-
-
-    
-
-# def crossover(parent1, parent2):
-    
-#     childP1 = []
-    
-#     geneA = int(random.random() * len(parent1))
-#     geneB = int(random.random() * len(parent1))
-    
-#     startGene = min(geneA, geneB)
-#     endGene = max(geneA, geneB)
-
-#     for i in range(startGene, endGene):
-#         childP1.append(parent1[i])
-        
-#     childP2 = [item for item in parent2 if item not in childP1]
-
-#     child = childP1 + childP2
-#     return child
 
 
 def mutate(MUTATION_RATE, N_SIZE, child):
@@ -250,53 +199,32 @@ def create_population(N_SIZE, POP_SIZE):
 
     population = []
     cityList = []
-
-    # 25 cities
-    cityName = ['Boca Raton', 'Bradenton', 'Clearwater', 'Cocoa Beach', 
-                'Coral Gables', 'Daytona Beach', 'Deerfield Beach', 
-                'Delray Beach', 'Fort Lauderdale', 'Fort Myers', 'Gainesville', 
-                'Hollywood', 'Jacksonville', 'Key West', 'Lakeland', 
-                'Melbourne', 'Miami', 'Naples', 'Orlando', 'Pensacola',
-                'Pompano Beach', 'Sarasota', 'Tallahassee', 'Tampa', 
-                'West Palm Beach']
     
     # 58 cities
-    # cityName = ['Apalachicola', 'Bartow','Belle Glade', 'Boca Raton', 
-    #             'Bradenton', 'Cape Coral', 'Clearwater', 'Cocoa Beach', 
-    #             'Cocoa-Rockledge', 'Coral Gables', 'Daytona Beach', 'De Land',
-    #             'Deerfield Beach', 'Delray Beach', 'Fernandina Beach',
-    #             'Fort Lauderdale', 'Fort Myers', 'Fort Pierce', 
-    #             'Fort Walton Beach', 'Gainesville', 'Hallandale Beach', 
-    #             'Hialeah', 'Hollywood', 'Homestead', 'Jacksonville', 
-    #             'Key West', 'Lake City', 'Lake Wales', 'Lakeland', 'Largo', 
-    #             'Melbourne', 'Miami', 'Miami Beach', 'Naples', 
-    #             'New Smyrna Beach', 'Ocala', 'Orlando', 'Ormond Beach', 
-    #             'Palatka', 'Palm Bay', 'Palm Beach', 'Panama City', 
-    #             'Pensacola', 'Pompano Beach', 'Saint Augustine', 
-    #             'Saint Petersburg', 'Sanford', 'Sarasota', 'Sebring', 
-    #             'Tallahassee', 'Tampa', 'Tarpon Springs', 'Titusville', 
-    #             'Venice', 'West Palm Beach', 'White Springs', 'Winter Haven', 
-    #             'Winter Park']
-
-
+    cityName = ['Apalachicola', 'Bartow','Belle Glade', 'Boca Raton', 
+                'Bradenton', 'Cape Coral', 'Clearwater', 'Cocoa Beach', 
+                'Cocoa-Rockledge', 'Coral Gables', 'Daytona Beach', 'De Land',
+                'Deerfield Beach', 'Delray Beach', 'Fernandina Beach',
+                'Fort Lauderdale', 'Fort Myers', 'Fort Pierce', 
+                'Fort Walton Beach', 'Gainesville', 'Hallandale Beach', 
+                'Hialeah', 'Hollywood', 'Homestead', 'Jacksonville', 
+                'Key West', 'Lake City', 'Lake Wales', 'Lakeland', 'Largo', 
+                'Melbourne', 'Miami', 'Miami Beach', 'Naples', 
+                'New Smyrna Beach', 'Ocala', 'Orlando', 'Ormond Beach', 
+                'Palatka', 'Palm Bay', 'Palm Beach', 'Panama City', 
+                'Pensacola', 'Pompano Beach', 'Saint Augustine', 
+                'Saint Petersburg', 'Sanford', 'Sarasota', 'Sebring', 
+                'Tallahassee', 'Tampa', 'Tarpon Springs', 'Titusville', 
+                'Venice', 'West Palm Beach', 'White Springs', 'Winter Haven', 
+                'Winter Park']
+    
+    random.shuffle(cityName)
     
     for city in range(0, N_SIZE):
         cityList.append(City(name=cityName[city], 
                             x=int(random.random() * 200), 
                              y=int(random.random() * 200)))
         
-
-    # Outputting the starting distance with the alphabetical city list
-    # print('\n')
-    # print('This is the alphabetical route distance: ')
-    # alphRouteDist, BEST_ROUTE_LENGTH = calculate_fitness(list(cityList), 
-    #                                                     BEST_ROUTE_LENGTH)
-    # print(alphRouteDist)
-    
-    # COULD HAVE INITIAL DISTANCE USING THE ALPHABETICAL CITY LIST 
-    # TO SEE IF GA IS WORKING
-
-
     for chromosome in range(POP_SIZE):
         # random.seed(chromosome)
         random.shuffle(cityList)
@@ -306,84 +234,89 @@ def create_population(N_SIZE, POP_SIZE):
     return population
 
 
+def plot_generations_and_route(BEST_ROUTE_LIST, NUM_GENERATIONS, BEST_ROUTE, 
+                               BEST_ROUTE_LENGTH):
+    
 
-def plotGenerations(BEST_ROUTE_LIST, NUM_GENERATIONS):
+    plt.figure(figsize=(9.5,9.5))
+
+    # Plotting the Generations plot
     xaxis = list(range(0, NUM_GENERATIONS))
 
+    plt.subplot(2, 1, 1)
     plt.plot(xaxis, BEST_ROUTE_LIST)
     plt.title('Best Routes Each Generation')
     plt.xlabel('Generation')
     plt.ylabel('Route Distance')
+    
+
+    # Plotting the Best Route plot
+    xLis = []
+    yLis = []
+    for city in BEST_ROUTE:
+
+        xPos, yPos = city.get_coords()
+
+        xLis.append(xPos)
+        yLis.append(yPos)
+
+    xLast, yLast = BEST_ROUTE[0].get_coords()
+    xLis.append(xLast)
+    yLis.append(yLast)
+
+    plt.subplot(2, 1, 2)
+    plt.axis([0, 200, 0, 200])
+
+    plt.plot(xLis, yLis, c='black')
+    plt.plot(xLis, yLis, c='black', mfc='red', marker='o',
+             markersize='7', label='Cities')
+    plt.plot(xLis[0], yLis[0], c='black', mfc='green', marker='s', 
+             markersize='9', label='Start')
+    plt.plot(xLis[1], yLis[1], c='black', mfc='purple', marker='D', 
+             markersize='9', label='Next')
+    plt.title('Best Route with length of: ' + str(round(BEST_ROUTE_LENGTH, 3)))
+    plt.legend()
+
+
+    # Plot both subplots
+    plt.tight_layout(pad=4.0)
     plt.show()
-
-# Y AXIS = DISTANCE IN UNITS
-# X AXIS = GENERATIONS
-# PLOT POINTS = BEST_ROUTE_LIST (its a list btw)
-
-# def plot_distances()
-
-
-
-
-
-# def geneticAlgorithmPlot(population, popSize, eliteSize, mutationRate, generations):
-#     pop = initialPopulation(popSize, population)
-#     progress = []
-#     progress.append(1 / rankRoutes(pop)[0][1])
-
-#     for i in range(0, generations):
-#         pop = nextGeneration(pop, eliteSize, mutationRate)
-#         progress.append(1 / rankRoutes(pop)[0][1])
-
-#     plt.plot(progress)
-#     plt.ylabel('Distance')
-#     plt.xlabel('Generation')
-#     plt.show()
-
-
-
-# geneticAlgorithmPlot(population=cityList, popSize=100, eliteSize=20, mutationRate=0.01, generations=500)
-
 
 
 def main():
     '''main function'''
 
-
     N_SIZE = 25
+    NUM_GENERATIONS = 5000
     POP_SIZE = 100
+
     BEST_ROUTE_LENGTH = 0
     BEST_ROUTE_LIST = []
+    BEST_ROUTE = []
+
     MUTATION_RATE = 0.1
     KILL_RATE = 0.2
     NUM_CHILDREN = 20
     
     
-    NUM_GENERATIONS = 500
     
     # random.seed(1)
-
     population = create_population(N_SIZE, POP_SIZE)
-
-
     # random.seed()
-
 
     for generations in range(NUM_GENERATIONS):
 
-    
-        routeLengths, BEST_ROUTE_LENGTH = calculate_fitness(population, 
-                                                        BEST_ROUTE_LENGTH)
+        routeLengths, BEST_ROUTE_LENGTH, BEST_ROUTE = calculate_fitness(
+                                                        population, 
+                                                        BEST_ROUTE_LENGTH,
+                                                        BEST_ROUTE)
 
         normProbabilities = set_probability(routeLengths)
-
 
         parent1 = proportional_roulette_selection(population, normProbabilities)
         parent2 = proportional_roulette_selection(population, normProbabilities)
 
-
         children = []
-
         for x in range(NUM_CHILDREN):
             child = crossover(parent1, parent2)
             child = mutate(MUTATION_RATE, N_SIZE, child)
@@ -391,51 +324,48 @@ def main():
 
         population = mergepopulation(population, children, routeLengths, 
                                     KILL_RATE)
-            
+        
+        if (generations + 1) % 500 == 0:
+            plot_generations_and_route(BEST_ROUTE_LIST, generations, 
+                                       BEST_ROUTE, BEST_ROUTE_LENGTH)
+                
         BEST_ROUTE_LIST.append(BEST_ROUTE_LENGTH)
+    
+
+
     
 
     print('\n')
     print('Best route starting point: ')
     print(BEST_ROUTE_LIST[0])
 
+    # print('\n')
+    # print('Best route list: ')
+    # print(BEST_ROUTE_LIST)
+
     print('\n')
     print('Best route length found within the generations: ')
     print(BEST_ROUTE_LENGTH)
     print('\n')
 
-    
-    plotGenerations(BEST_ROUTE_LIST, NUM_GENERATIONS)
+    # print('\n')
+    # print('This is the final length of the population: ')
+    # print(len(population))
 
 
     # print('\n')
-    # print('Best route list: ')
-    # print(BEST_ROUTE_LIST)
+    # print('This is the best route: ')
+    # print(BEST_ROUTE)
 
 
-    print('\n')
-    print('This is the final length of the population: ')
-    print(len(population))
-    print('\n')
+
+
+
+
+    # plot_generations_and_route(BEST_ROUTE_LIST, NUM_GENERATIONS, BEST_ROUTE, 
+    #                            BEST_ROUTE_LENGTH)
 
 
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-# def run_ga():
-#     best_global_fitness = 0
-#     global_population = generate_initial_population(INITIAL_POPULATION_SIZE)
-#     for generation in range(NUMBER_OF_GENERATIONS):
-#         current_best_fitness = calculate_population_fitness(global_population, KNAPSACK_WEIGHT_CAPACITY)
-#         if current_best_fitness > best_global_fitness:
-#             best_global_fitness = current_best_fitness
-#         the_chosen = roulette_wheel_selection(global_population, 100)
-#         the_children = reproduce_children(the_chosen)
-#         the_children = mutate_children(the_children, MUTATION_RATE)
-#         global_population = merge_population_and_children(global_population, the_children)
-#         # print(global_population)
