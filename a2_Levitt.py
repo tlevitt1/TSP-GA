@@ -307,7 +307,14 @@ def create_population(N_SIZE, POP_SIZE):
 
 
 
+def plotGenerations(BEST_ROUTE_LIST, NUM_GENERATIONS):
+    xaxis = list(range(0, NUM_GENERATIONS))
 
+    plt.plot(xaxis, BEST_ROUTE_LIST)
+    plt.title('Best Routes Each Generation')
+    plt.xlabel('Generation')
+    plt.ylabel('Route Distance')
+    plt.show()
 
 # Y AXIS = DISTANCE IN UNITS
 # X AXIS = GENERATIONS
@@ -396,6 +403,10 @@ def main():
     print('Best route length found within the generations: ')
     print(BEST_ROUTE_LENGTH)
     print('\n')
+
+    
+    plotGenerations(BEST_ROUTE_LIST, NUM_GENERATIONS)
+
 
     # print('\n')
     # print('Best route list: ')
