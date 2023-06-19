@@ -247,7 +247,7 @@ def create_population(N_SIZE, POP_SIZE):
 def main():
     '''main function'''
 
-    N_SIZE = 25
+    N_SIZE = 58
     NUM_GENERATIONS = 5000
     POP_SIZE = 100
 
