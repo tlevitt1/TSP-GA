@@ -260,9 +260,9 @@ def main():
     NUM_CHILDREN = 20
     
     
-    # random.seed(1)
+    random.seed(1)
     population = create_population(N_SIZE, POP_SIZE)
-    # random.seed()
+    random.seed()
 
     for generations in range(NUM_GENERATIONS):
 
