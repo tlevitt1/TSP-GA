@@ -1,2 +1,2 @@
 # TSP-GA
-Traveling Sales Person using genetic algorithms. For CAP 4630
+Solving the Traveling Salesman using a Genetic Algorithm. For CAP 4630
